@@ -25,7 +25,7 @@ public class Clock {
 	    public void run() {
 		while (running) {
 		    currTime = (int) System.currentTimeMillis();
-		    if(currTime != oldCurrTime){
+		    if (currTime != oldCurrTime) {
 			ticked = false;
 		    }
 		    if ((currTime - startTime) % 1000 == 0 && !ticked) {
@@ -36,8 +36,8 @@ public class Clock {
 	    }
 	}).start();
     }
-    
-    public void stop(){
+
+    public void stop() {
 	running = false;
     }
 
@@ -45,6 +45,10 @@ public class Clock {
 	ticked = true;
 	displayTime++;
 	displayField.setText(toString());
+    }
+
+    public boolean isRunning() {
+	return running;
     }
 
     @Override

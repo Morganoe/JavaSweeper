@@ -40,7 +40,6 @@ public class GUIGame extends BasicGameState {
 	resetButton = new Button("RESET",
 		(int) (container.getWidth() * 0.50) - 25,
 		(int) (container.getHeight() * 0.03), 50, 50);
-	gameClock.start();
     }
 
     @Override
@@ -57,7 +56,7 @@ public class GUIGame extends BasicGameState {
 	    throws SlickException {
 	mouseX = Mouse.getX();
 	mouseY = container.getHeight() - Mouse.getY();
-	if(numBombsFlagged == board.getNumBombs()){
+	if (numBombsFlagged == board.getNumBombs()) {
 	    setWinState();
 	}
 	checkTileClick(container, game);
@@ -72,6 +71,9 @@ public class GUIGame extends BasicGameState {
 		for (Tile tile : t) {
 		    if (tile.isMouseOver(input, mouseX, mouseY)
 			    && !tile.getFlagged()) {
+			if (!gameClock.isRunning()) {
+			    gameClock.start();
+			}
 			tile.clicked();
 			if (tile.isBomb()) {
 			    setLoseState();
@@ -88,12 +90,12 @@ public class GUIGame extends BasicGameState {
 		for (Tile tile : t) {
 		    if (tile.isMouseOver(input, mouseX, mouseY)) {
 			if (!tile.getFlagged()) {
-			    if(tile.isBomb()){
+			    if (tile.isBomb()) {
 				numBombsFlagged++;
 			    }
 			    tile.flag();
 			} else {
-			    if(tile.isBomb()){
+			    if (tile.isBomb()) {
 				numBombsFlagged--;
 			    }
 			    tile.unflag();
@@ -125,7 +127,7 @@ public class GUIGame extends BasicGameState {
 	    }
 	}
     }
-    
+
     private void setWinState() {
 	gameClock.stop();
 	for (Tile[] t : board.getBoard()) {
