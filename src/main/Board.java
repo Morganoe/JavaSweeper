@@ -8,8 +8,6 @@ public class Board {
 
     private Tile[][] grid;
     private Dimension size;
-    private int x2;
-    private int y2;
     private int numBombs;
     private Random tilePicker;
 
@@ -17,8 +15,6 @@ public class Board {
 	if (difficulty.equals("EASY")) {
 	    numBombs = 10;
 	    size = new Dimension(9, 9);
-	    x2 = 90;
-	    y2 = 90;
 	}
 	if (difficulty.equals("MEDIUM")) {
 	    numBombs = 40;
@@ -95,14 +91,6 @@ public class Board {
 
     public Dimension getSize() {
 	return size;
-    }
-
-    public int getX2() {
-	return x2;
-    }
-
-    public int getY2() {
-	return y2;
     }
 
     public Tile[][] getBoard() {

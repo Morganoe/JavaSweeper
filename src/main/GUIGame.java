@@ -19,24 +19,29 @@ public class GUIGame extends BasicGameState {
     private Input input;
     private Board board;
     private Stack<Tile> revealStack;
+    private Button resetButton;
 
     public GUIGame(int state) {
 	STATE = state;
-	board = new Board("EASY");
-	revealStack = new Stack<Tile>();
     }
 
     @Override
     public void init(GameContainer container, StateBasedGame game)
 	    throws SlickException {
+	board = new Board("EASY");
+	revealStack = new Stack<Tile>();
 	input = container.getInput();
+	resetButton = new Button("RESET",
+		(int) (container.getWidth() * 0.50) - 25,
+		(int) (container.getHeight() * 0.03), 50, 50);
     }
 
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g)
 	    throws SlickException {
-	g.setBackground(Color.gray);
+	g.setBackground(Color.lightGray);
 	board.draw(g);
+	resetButton.draw(g);
     }
 
     @Override
@@ -44,14 +49,19 @@ public class GUIGame extends BasicGameState {
 	    throws SlickException {
 	mouseX = Mouse.getX();
 	mouseY = container.getHeight() - Mouse.getY();
-	checkTileClick();
+
+	checkTileClick(container, game);
     }
 
-    private void checkTileClick() {
+    private void checkTileClick(GameContainer container, StateBasedGame game) {
+
 	if (input.isMousePressed(Input.MOUSE_LEFT_BUTTON)) {
+	    if (resetButton.isMouseOver(input, mouseX, mouseY)) {
+		reset(container, game);
+	    }
 	    for (Tile[] t : board.getBoard()) {
 		for (Tile tile : t) {
-		    if (tile.mouseIsOver(input, mouseX, mouseY)
+		    if (tile.isMouseOver(input, mouseX, mouseY)
 			    && !tile.getFlagged()) {
 			tile.clicked();
 			if (tile.isBomb()) {
@@ -67,7 +77,7 @@ public class GUIGame extends BasicGameState {
 	if (input.isMousePressed(Input.MOUSE_RIGHT_BUTTON)) {
 	    for (Tile[] t : board.getBoard()) {
 		for (Tile tile : t) {
-		    if (tile.mouseIsOver(input, mouseX, mouseY)) {
+		    if (tile.isMouseOver(input, mouseX, mouseY)) {
 			if (!tile.getFlagged()) {
 			    tile.flag();
 			} else {
@@ -82,6 +92,14 @@ public class GUIGame extends BasicGameState {
     @Override
     public int getID() {
 	return STATE;
+    }
+
+    private void reset(GameContainer container, StateBasedGame game) {
+	try {
+	    this.init(container, game);
+	    game.enterState(STATE);
+	} catch (SlickException e) {
+	}
     }
 
     private void setLoseState() {
@@ -111,6 +129,8 @@ public class GUIGame extends BasicGameState {
 				&& !(i == 0 && j == 0)
 				&& !board.getBoard()[x + i][y + j].getFlagged()) {
 			    revealStack.push(board.getBoard()[x + i][y + j]);
+			} else {
+			    board.getBoard()[x + i][y + j].clicked();
 			}
 		    } catch (ArrayIndexOutOfBoundsException e) {
 		    }
