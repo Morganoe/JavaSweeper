@@ -1,0 +1,10 @@
+
+*.log
+
+*.class
+
+.classpath
+
+*.prefs
+
+.project
