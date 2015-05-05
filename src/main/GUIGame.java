@@ -20,6 +20,9 @@ public class GUIGame extends BasicGameState {
     private Board board;
     private Stack<Tile> revealStack;
     private Button resetButton;
+    private Clock gameClock;
+    private Button clockButton;
+    private int numBombsFlagged;
 
     public GUIGame(int state) {
 	STATE = state;
@@ -28,12 +31,16 @@ public class GUIGame extends BasicGameState {
     @Override
     public void init(GameContainer container, StateBasedGame game)
 	    throws SlickException {
+	numBombsFlagged = 0;
+	clockButton = new Button(0 + "", 10, 10, 50, 50);
+	gameClock = new Clock(clockButton);
 	board = new Board("EASY");
 	revealStack = new Stack<Tile>();
 	input = container.getInput();
 	resetButton = new Button("RESET",
 		(int) (container.getWidth() * 0.50) - 25,
 		(int) (container.getHeight() * 0.03), 50, 50);
+	gameClock.start();
     }
 
     @Override
@@ -42,6 +49,7 @@ public class GUIGame extends BasicGameState {
 	g.setBackground(Color.lightGray);
 	board.draw(g);
 	resetButton.draw(g);
+	clockButton.draw(g);
     }
 
     @Override
@@ -49,12 +57,13 @@ public class GUIGame extends BasicGameState {
 	    throws SlickException {
 	mouseX = Mouse.getX();
 	mouseY = container.getHeight() - Mouse.getY();
-
+	if(numBombsFlagged == board.getNumBombs()){
+	    setWinState();
+	}
 	checkTileClick(container, game);
     }
 
     private void checkTileClick(GameContainer container, StateBasedGame game) {
-
 	if (input.isMousePressed(Input.MOUSE_LEFT_BUTTON)) {
 	    if (resetButton.isMouseOver(input, mouseX, mouseY)) {
 		reset(container, game);
@@ -79,8 +88,14 @@ public class GUIGame extends BasicGameState {
 		for (Tile tile : t) {
 		    if (tile.isMouseOver(input, mouseX, mouseY)) {
 			if (!tile.getFlagged()) {
+			    if(tile.isBomb()){
+				numBombsFlagged++;
+			    }
 			    tile.flag();
 			} else {
+			    if(tile.isBomb()){
+				numBombsFlagged--;
+			    }
 			    tile.unflag();
 			}
 		    }
@@ -103,6 +118,16 @@ public class GUIGame extends BasicGameState {
     }
 
     private void setLoseState() {
+	gameClock.stop();
+	for (Tile[] t : board.getBoard()) {
+	    for (Tile tile : t) {
+		tile.clicked();
+	    }
+	}
+    }
+    
+    private void setWinState() {
+	gameClock.stop();
 	for (Tile[] t : board.getBoard()) {
 	    for (Tile tile : t) {
 		tile.clicked();

@@ -10,30 +10,25 @@ import org.newdawn.slick.state.StateBasedGame;
 
 public class Main extends StateBasedGame {
 
-    private GUIMenu guiMenu;
     private GUIGame guiGame;
 
-    public static final int MENU_STATE = 0;
     public static final int GAME_STATE = 1;
 
     public Main(String name) {
 	super(name);
-	guiMenu = new GUIMenu(MENU_STATE);
 	guiGame = new GUIGame(GAME_STATE);
-	this.addState(guiMenu);
 	this.addState(guiGame);
     }
 
     @Override
     public void initStatesList(GameContainer container) throws SlickException {
-	this.getState(MENU_STATE).init(container, this);
 	this.getState(GAME_STATE).init(container, this);
-	this.enterState(MENU_STATE);
+	this.enterState(GAME_STATE);
     }
 
     public static void main(String[] args) {
 	String title = "Java Minesweeper";
-	String version = " v0.0.3";
+	String version = " v0.0.5";
 	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	try {
 	    AppGameContainer appgc = new AppGameContainer(new Main(title
