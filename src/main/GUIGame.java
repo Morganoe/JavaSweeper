@@ -23,6 +23,7 @@ public class GUIGame extends BasicGameState {
     private Clock gameClock;
     private Button clockButton;
     private int numBombsFlagged;
+    private Button winButton;
 
     public GUIGame(int state) {
 	STATE = state;
@@ -32,6 +33,7 @@ public class GUIGame extends BasicGameState {
     public void init(GameContainer container, StateBasedGame game)
 	    throws SlickException {
 	numBombsFlagged = 0;
+	winButton = new Button("", container.getWidth() - 60, 10, 50, 50);
 	clockButton = new Button(0 + "", 10, 10, 50, 50);
 	gameClock = new Clock(clockButton);
 	board = new Board("EASY");
@@ -49,6 +51,7 @@ public class GUIGame extends BasicGameState {
 	board.draw(g);
 	resetButton.draw(g);
 	clockButton.draw(g);
+	winButton.draw(g);
     }
 
     @Override
@@ -81,14 +84,22 @@ public class GUIGame extends BasicGameState {
 			if (tile.getBombsSurrounding() == 0) {
 			    revealEmptyRegion(tile);
 			}
+			if (tile.getClicked()) {
+			    if (tile.getBombsSurrounding() > 0) {
+				if (countFlags(tile) == tile
+					.getBombsSurrounding()) {
+				    revealFlagFullTiles(tile);
+				}
+			    }
+			}
 		    }
 		}
 	    }
-	}
-	if (input.isMousePressed(Input.MOUSE_RIGHT_BUTTON)) {
+	} else if (input.isMousePressed(Input.MOUSE_RIGHT_BUTTON)) {
 	    for (Tile[] t : board.getBoard()) {
 		for (Tile tile : t) {
-		    if (tile.isMouseOver(input, mouseX, mouseY)) {
+		    if (tile.isMouseOver(input, mouseX, mouseY)
+			    && !tile.getClicked()) {
 			if (!tile.getFlagged()) {
 			    if (tile.isBomb()) {
 				numBombsFlagged++;
@@ -111,6 +122,48 @@ public class GUIGame extends BasicGameState {
 	return STATE;
     }
 
+    private void revealFlagFullTiles(Tile tile) {
+	int x = tile.getBoardX();
+	int y = tile.getBoardY();
+	for (int i = -1; i < 2; i++) {
+	    for (int j = -1; j < 2; j++) {
+		try {
+		    if (!board.getBoard()[x + i][y + j].getFlagged()) {
+			if (board.getBoard()[x + i][y + j]
+				.getBombsSurrounding() == 0) {
+			    if (!board.getBoard()[x + i][y + j].isBomb()) {
+				revealEmptyRegion(board.getBoard()[x + i][y + j]);
+			    }
+			}
+			if (board.getBoard()[x + i][y + j].isBomb()) {
+			    setLoseState();
+			}
+			board.getBoard()[x + i][y + j].clicked();
+		    }
+
+		} catch (ArrayIndexOutOfBoundsException e) {
+		}
+	    }
+	}
+    }
+
+    private int countFlags(Tile tile) {
+	int flagCount = 0;
+	int x = tile.getBoardX();
+	int y = tile.getBoardY();
+	for (int i = -1; i < 2; i++) {
+	    for (int j = -1; j < 2; j++) {
+		try {
+		    if (board.getBoard()[x + i][y + j].getFlagged()) {
+			flagCount++;
+		    }
+		} catch (ArrayIndexOutOfBoundsException e) {
+		}
+	    }
+	}
+	return flagCount;
+    }
+
     private void reset(GameContainer container, StateBasedGame game) {
 	try {
 	    this.init(container, game);
@@ -121,6 +174,7 @@ public class GUIGame extends BasicGameState {
 
     private void setLoseState() {
 	gameClock.stop();
+	winButton.setText("L");
 	for (Tile[] t : board.getBoard()) {
 	    for (Tile tile : t) {
 		tile.clicked();
@@ -130,6 +184,7 @@ public class GUIGame extends BasicGameState {
 
     private void setWinState() {
 	gameClock.stop();
+	winButton.setText("W");
 	for (Tile[] t : board.getBoard()) {
 	    for (Tile tile : t) {
 		tile.clicked();

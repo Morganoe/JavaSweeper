@@ -161,6 +161,10 @@ public class Tile extends Button {
     public void clicked() {
 	this.isClicked = true;
     }
+    
+    public void unclick(){
+	this.isClicked = false;
+    }
 
     public boolean getClicked() {
 	return isClicked;
